@@ -161,7 +161,13 @@ export default function KeilaSticker({
           style={{ transformOrigin: config.origin }}
           className="w-full will-change-transform"
         >
-          <motion.img src={src} alt={alt} {...sharedMotionProps} />
+          <motion.img
+            src={src}
+            alt={alt}
+            loading={config.useInView ? "lazy" : "eager"}
+            decoding="async"
+            {...sharedMotionProps}
+          />
         </motion.div>
       )}
     </motion.div>

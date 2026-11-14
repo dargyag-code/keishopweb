@@ -9,110 +9,134 @@ export default function ScrollRibbon() {
     const svg = svgRef.current;
     if (!path || !svg) return;
 
-    const totalLength = path.getTotalLength();
-    path.style.strokeDasharray = `${totalLength}`;
+    const mq = window.matchMedia("(min-width: 768px)");
+    let cleanup = null;
 
-    // Muestreamos el recorrido del listón para alinear su coordenada Y con el scroll
-    const SAMPLE_COUNT = 600;
-    const samples = [];
-    for (let i = 0; i <= SAMPLE_COUNT; i++) {
-      const len = (i / SAMPLE_COUNT) * totalLength;
-      const pt = path.getPointAtLength(len);
-      samples.push({ len, y: pt.y });
-    }
+    const initRibbon = () => {
+      if (!mq.matches) return;
 
-    const maxSoFar = new Array(samples.length);
-    const minFromEnd = new Array(samples.length);
+      const totalLength = path.getTotalLength();
+      path.style.strokeDasharray = `${totalLength}`;
 
-    let currMax = -Infinity;
-    for (let i = 0; i < samples.length; i++) {
-      currMax = Math.max(currMax, samples[i].y);
-      maxSoFar[i] = currMax;
-    }
+      // Muestreamos el recorrido del listón para alinear su coordenada Y con el scroll
+      const SAMPLE_COUNT = 600;
+      const samples = [];
+      for (let i = 0; i <= SAMPLE_COUNT; i++) {
+        const len = (i / SAMPLE_COUNT) * totalLength;
+        const pt = path.getPointAtLength(len);
+        samples.push({ len, y: pt.y });
+      }
 
-    let currMin = Infinity;
-    for (let i = samples.length - 1; i >= 0; i--) {
-      currMin = Math.min(currMin, samples[i].y);
-      minFromEnd[i] = currMin;
-    }
+      const maxSoFar = new Array(samples.length);
+      const minFromEnd = new Array(samples.length);
 
-    // Suavizado monótono para que cada bucle se dibuje de forma continua sin retrasarse
-    const effectiveY = samples.map((s) => s.y);
-    let idx = 0;
-    while (idx < samples.length) {
-      if (minFromEnd[idx] < maxSoFar[idx] - 0.5) {
-        const start = idx;
-        while (idx < samples.length && minFromEnd[idx] < maxSoFar[idx] - 0.5) {
+      let currMax = -Infinity;
+      for (let i = 0; i < samples.length; i++) {
+        currMax = Math.max(currMax, samples[i].y);
+        maxSoFar[i] = currMax;
+      }
+
+      let currMin = Infinity;
+      for (let i = samples.length - 1; i >= 0; i--) {
+        currMin = Math.min(currMin, samples[i].y);
+        minFromEnd[i] = currMin;
+      }
+
+      // Suavizado monótono para que cada bucle se dibuje de forma continua sin retrasarse
+      const effectiveY = samples.map((s) => s.y);
+      let idx = 0;
+      while (idx < samples.length) {
+        if (minFromEnd[idx] < maxSoFar[idx] - 0.5) {
+          const start = idx;
+          while (idx < samples.length && minFromEnd[idx] < maxSoFar[idx] - 0.5) {
+            idx++;
+          }
+          const end = Math.min(idx, samples.length - 1);
+          const startY = effectiveY[Math.max(0, start - 1)];
+          const endY = effectiveY[end];
+          const span = Math.max(1, end - start + 1);
+          for (let k = start; k <= end; k++) {
+            const t = (k - start + 1) / span;
+            effectiveY[k] = startY + (endY - startY) * t;
+          }
+        } else {
           idx++;
         }
-        const end = Math.min(idx, samples.length - 1);
-        const startY = effectiveY[Math.max(0, start - 1)];
-        const endY = effectiveY[end];
-        const span = Math.max(1, end - start + 1);
-        for (let k = start; k <= end; k++) {
-          const t = (k - start + 1) / span;
-          effectiveY[k] = startY + (endY - startY) * t;
+      }
+
+      const findLengthForSvgY = (targetY) => {
+        if (targetY <= effectiveY[0]) return 0;
+        if (targetY >= effectiveY[effectiveY.length - 1]) return totalLength;
+
+        let low = 0;
+        let high = effectiveY.length - 1;
+        while (low < high) {
+          const mid = (low + high) >> 1;
+          if (effectiveY[mid] < targetY) low = mid + 1;
+          else high = mid;
         }
-      } else {
-        idx++;
-      }
-    }
 
-    const findLengthForSvgY = (targetY) => {
-      if (targetY <= effectiveY[0]) return 0;
-      if (targetY >= effectiveY[effectiveY.length - 1]) return totalLength;
+        const i1 = Math.max(0, low - 1);
+        const i2 = low;
+        const y1 = effectiveY[i1];
+        const y2 = effectiveY[i2];
+        const frac = y2 === y1 ? 0 : (targetY - y1) / (y2 - y1);
+        return samples[i1].len + frac * (samples[i2].len - samples[i1].len);
+      };
 
-      let low = 0;
-      let high = effectiveY.length - 1;
-      while (low < high) {
-        const mid = (low + high) >> 1;
-        if (effectiveY[mid] < targetY) low = mid + 1;
-        else high = mid;
-      }
+      let rafId = null;
 
-      const i1 = Math.max(0, low - 1);
-      const i2 = low;
-      const y1 = effectiveY[i1];
-      const y2 = effectiveY[i2];
-      const frac = y2 === y1 ? 0 : (targetY - y1) / (y2 - y1);
-      return samples[i1].len + frac * (samples[i2].len - samples[i1].len);
+      const updateRibbon = () => {
+        rafId = null;
+        const rect = svg.getBoundingClientRect();
+        const mainHeight = rect.height || document.documentElement.scrollHeight;
+        const scrollTop = window.scrollY;
+        const vh = window.innerHeight;
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
+        const scrollRatio = Math.min(Math.max(scrollTop / maxScroll, 0), 1);
+
+        // Mantiene la punta del listón al ritmo de la lectura del usuario (sin rezago)
+        const mainTopInDoc = rect.top + scrollTop;
+        const focusDocY = scrollTop + vh * (0.22 + 0.78 * scrollRatio);
+        const relativeY = focusDocY - mainTopInDoc;
+        const targetSvgY = Math.min(Math.max((relativeY / mainHeight) * 5508.03, 0), 5508.03);
+
+        const currentLen = findLengthForSvgY(targetSvgY);
+        path.style.strokeDashoffset = `${totalLength - currentLen}`;
+      };
+
+      const onScroll = () => {
+        if (rafId === null) {
+          rafId = window.requestAnimationFrame(updateRibbon);
+        }
+      };
+
+      updateRibbon();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
+
+      cleanup = () => {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", onScroll);
+        if (rafId !== null) window.cancelAnimationFrame(rafId);
+      };
     };
 
-    let rafId = null;
+    initRibbon();
 
-    const updateRibbon = () => {
-      rafId = null;
-      const rect = svg.getBoundingClientRect();
-      const mainHeight = rect.height || document.documentElement.scrollHeight;
-      const scrollTop = window.scrollY;
-      const vh = window.innerHeight;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
-      const scrollRatio = Math.min(Math.max(scrollTop / maxScroll, 0), 1);
-
-      // Mantiene la punta del listón al ritmo de la lectura del usuario (sin rezago)
-      const mainTopInDoc = rect.top + scrollTop;
-      const focusDocY = scrollTop + vh * (0.22 + 0.78 * scrollRatio);
-      const relativeY = focusDocY - mainTopInDoc;
-      const targetSvgY = Math.min(Math.max((relativeY / mainHeight) * 5508.03, 0), 5508.03);
-
-      const currentLen = findLengthForSvgY(targetSvgY);
-      path.style.strokeDashoffset = `${totalLength - currentLen}`;
-    };
-
-    const onScroll = () => {
-      if (rafId === null) {
-        rafId = window.requestAnimationFrame(updateRibbon);
+    const handleMediaChange = () => {
+      if (mq.matches && !cleanup) {
+        initRibbon();
+      } else if (!mq.matches && cleanup) {
+        cleanup();
+        cleanup = null;
       }
     };
 
-    updateRibbon();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-
+    mq.addEventListener("change", handleMediaChange);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (rafId !== null) window.cancelAnimationFrame(rafId);
+      mq.removeEventListener("change", handleMediaChange);
+      if (cleanup) cleanup();
     };
   }, []);
 
@@ -122,7 +146,7 @@ export default function ScrollRibbon() {
       viewBox="0 0 2006.01 5508.03"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="pointer-events-none absolute inset-0 w-full h-full z-[2] opacity-85"
+      className="hidden md:block pointer-events-none absolute inset-0 w-full h-full z-[2] opacity-85"
       preserveAspectRatio="none"
       aria-hidden="true"
     >

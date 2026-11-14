@@ -27,11 +27,12 @@ export default function HeroWalkingCanvas({
     mass: 0.6,
   });
 
-  // Procesamiento fotograma a fotograma en tiempo real para poner Alpha = 0 solo al blanco puro
+  // Procesamiento fotograma a fotograma en tiempo real (lazy + pausado fuera de pantalla + resolución optimizada)
   useEffect(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (!video || !canvas) return;
+    const slotEl = slotRef.current;
+    if (!video || !canvas || !slotEl) return;
 
     const ctx = canvas.getContext("2d", {
       alpha: true,
@@ -41,18 +42,26 @@ export default function HeroWalkingCanvas({
 
     let rafId = null;
     let active = true;
+    let isVisible = false;
+    let hasActivatedVideo = false;
+    let lastDrawTime = 0;
 
     const processFrame = () => {
       if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
-        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
+        // Escala máxima a 520px de ancho para reducir 7x-10x el costo de píxeles en móvil/web
+        const scale = Math.min(1, 520 / video.videoWidth);
+        const targetW = Math.max(1, Math.round(video.videoWidth * scale));
+        const targetH = Math.max(1, Math.round(video.videoHeight * scale));
+
+        if (canvas.width !== targetW || canvas.height !== targetH) {
+          canvas.width = targetW;
+          canvas.height = targetH;
         }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, targetW, targetH);
+        ctx.drawImage(video, 0, 0, targetW, targetH);
 
-        const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const frame = ctx.getImageData(0, 0, targetW, targetH);
         const data = frame.data;
 
         for (let i = 0; i < data.length; i += 4) {
@@ -72,26 +81,76 @@ export default function HeroWalkingCanvas({
       }
     };
 
-    const tick = () => {
-      if (!active) return;
-      if (!video.paused && !video.ended) {
+    const tick = (now) => {
+      if (!active || !isVisible) {
+        rafId = null;
+        return;
+      }
+      // Limita el reprocesado de canvas a ~24 fps para evitar sobrecarga de CPU
+      if (!video.paused && !video.ended && now - lastDrawTime >= 40) {
+        lastDrawTime = now;
         processFrame();
       }
       rafId = window.requestAnimationFrame(tick);
     };
 
+    const startLoop = () => {
+      if (rafId === null && active && isVisible) {
+        rafId = window.requestAnimationFrame(tick);
+      }
+    };
+
     const handleLoadedData = () => {
       processFrame();
-      video.play().catch(() => {});
+      if (isVisible) {
+        video.play().catch(() => {});
+        startLoop();
+      }
     };
 
     video.addEventListener("loadeddata", handleLoadedData);
     video.addEventListener("canplay", handleLoadedData);
-    video.play().catch(() => {});
-    rafId = window.requestAnimationFrame(tick);
+
+    const observer =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(
+            (entries) => {
+              const entry = entries[0];
+              isVisible = Boolean(entry?.isIntersecting);
+
+              if (isVisible) {
+                if (!hasActivatedVideo) {
+                  hasActivatedVideo = true;
+                  video.preload = "auto";
+                  video.src = src;
+                  video.load();
+                }
+                video.play().catch(() => {});
+                startLoop();
+              } else {
+                video.pause();
+                if (rafId !== null) {
+                  window.cancelAnimationFrame(rafId);
+                  rafId = null;
+                }
+              }
+            },
+            { rootMargin: "250px 0px" }
+          )
+        : null;
+
+    if (observer) {
+      observer.observe(slotEl);
+    } else {
+      isVisible = true;
+      video.src = src;
+      video.play().catch(() => {});
+      startLoop();
+    }
 
     return () => {
       active = false;
+      observer?.disconnect();
       video.removeEventListener("loadeddata", handleLoadedData);
       video.removeEventListener("canplay", handleLoadedData);
       if (rafId !== null) window.cancelAnimationFrame(rafId);
@@ -186,15 +245,13 @@ export default function HeroWalkingCanvas({
       }}
       className={`relative w-full ${className}`}
     >
-      {/* Video fuente oculto (sin display:none para no pausar la decodificación de fotogramas) */}
+      {/* Video fuente oculto con carga diferida hasta acercarse al catálogo */}
       <video
         ref={videoRef}
-        src={src}
-        autoPlay
         loop
         muted
         playsInline
-        preload="auto"
+        preload="none"
         aria-hidden="true"
         style={{
           position: "fixed",

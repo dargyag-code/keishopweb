@@ -79,8 +79,10 @@ export default function Navbar({ cartCount, onOpenCart, onOpenSearch, onOpenAdvi
           aria-label="Keishop Always Curly - Ir al inicio"
         >
           <img
-            src="/assets/logokeila.png"
+            src="/assets/logokeila.webp"
             alt="Keishop Always Curly"
+            decoding="async"
+            fetchPriority="high"
             className="h-10 md:h-[52px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
           />
         </a>

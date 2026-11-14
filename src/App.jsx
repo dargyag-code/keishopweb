@@ -221,7 +221,7 @@ export default function App() {
               <div className="relative w-full max-w-[560px] lg:max-w-none lg:w-[114%] xl:w-[126%] 2xl:w-[143.3%] 2xl:-ml-[18.6%] aspect-[940/745] lg:translate-y-7 2xl:translate-y-12 select-none">
                 {[
                   {
-                    src: "/assets/hero-prod-3.png",
+                    src: "/assets/hero-prod-3.webp",
                     alt: "Crema Definidora Full HD Linaza y Gelatina",
                     left: "27.45%",
                     top: "34.50%",
@@ -231,7 +231,7 @@ export default function App() {
                     delay: 0.05,
                   },
                   {
-                    src: "/assets/hero-prod-4.png",
+                    src: "/assets/hero-prod-4.webp",
                     alt: "Crema Definidora Full HD Afro Hold Linaza y Oliva",
                     left: "0.06%",
                     top: "35.07%",
@@ -241,7 +241,7 @@ export default function App() {
                     delay: 0.1,
                   },
                   {
-                    src: "/assets/hero-prod-5.png",
+                    src: "/assets/hero-prod-5.webp",
                     alt: "Spray Boom Anti Frizz Mi Dulce Pelo",
                     left: "8.72%",
                     top: "14.03%",
@@ -251,7 +251,7 @@ export default function App() {
                     delay: 0.15,
                   },
                   {
-                    src: "/assets/hero-prod-6.png",
+                    src: "/assets/hero-prod-6.webp",
                     alt: "Tratamiento 3 en 1 Soy Lisa Mi Dulce Pelo",
                     left: "51.49%",
                     top: "38.51%",
@@ -261,7 +261,7 @@ export default function App() {
                     delay: 0.2,
                   },
                   {
-                    src: "/assets/hero-prod-7.png",
+                    src: "/assets/hero-prod-7.webp",
                     alt: "Tratamiento 3 en 1 Soy Crespa Mi Dulce Pelo",
                     left: "53.61%",
                     top: "7.94%",
@@ -271,7 +271,7 @@ export default function App() {
                     delay: 0.25,
                   },
                   {
-                    src: "/assets/hero-prod-8.png",
+                    src: "/assets/hero-prod-8.webp",
                     alt: "Shampoo Chantilly Mi Dulce Pelo",
                     left: "39.41%",
                     top: "3.63%",
@@ -281,7 +281,7 @@ export default function App() {
                     delay: 0.3,
                   },
                   {
-                    src: "/assets/hero-prod-9.png",
+                    src: "/assets/hero-prod-9.webp",
                     alt: "Shampoo Seco Minisigüi Mi Dulce Pelo",
                     left: "25.84%",
                     top: "0.01%",
@@ -291,7 +291,7 @@ export default function App() {
                     delay: 0.35,
                   },
                   {
-                    src: "/assets/hero-prod-10.png",
+                    src: "/assets/hero-prod-10.webp",
                     alt: "Espuma de Suspiros Mi Dulce Pelo",
                     left: "17.79%",
                     top: "2.62%",
@@ -327,6 +327,9 @@ export default function App() {
                       <img
                         src={item.src}
                         alt={item.alt}
+                        loading="eager"
+                        decoding="async"
+                        fetchPriority={idx >= 4 ? "high" : "auto"}
                         style={{ transform: `rotate(${item.rotate}deg)` }}
                         className="w-full h-full object-contain pointer-events-none"
                       />
@@ -342,15 +345,19 @@ export default function App() {
         <section id="stock" className="relative bg-[#faa1ce] pt-20 pb-20 px-6 md:px-14 overflow-hidden">
           {/* Translucent wave pattern from Figma */}
           <img
-            src="/assets/wave-faq.png"
+            src="/assets/wave-faq.webp"
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
             className="pointer-events-none select-none opacity-20 absolute top-0 left-0 w-full h-[380px] object-cover object-bottom rotate-180 z-[1]"
           />
           <img
-            src="/assets/wave-faq.png"
+            src="/assets/wave-faq.webp"
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
             className="pointer-events-none select-none opacity-20 absolute bottom-0 left-0 w-full h-[380px] object-cover object-top z-[1]"
           />
 
@@ -408,7 +415,7 @@ export default function App() {
               <div className="hidden lg:flex lg:col-span-4 justify-start self-end -mb-20 -ml-16">
                 <KeilaSticker
                   variant="stock"
-                  src="/assets/keila-espaldas-rosado.png"
+                  src="/assets/keila-espaldas-rosado.webp"
                   alt="Chica rizada Keishop luciendo rizos definidos"
                   wrapperClassName="max-w-[460px]"
                 />
@@ -679,7 +686,7 @@ export default function App() {
             <div className="lg:col-span-6 flex flex-col items-center lg:items-end gap-4">
               <KeilaSticker
                 variant="salon"
-                src="/assets/lava-cabeza-morado.png"
+                src="/assets/lava-cabeza-morado.webp"
                 alt="Chica rizada celebrando el amor propio y su melena natural"
                 wrapperClassName="max-w-[460px] lg:max-w-[540px]"
               />
@@ -760,33 +767,71 @@ export default function App() {
               </div>
             </div>
 
-            {/* Right Cards */}
-            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {[0, 1].map((offset) => {
-                const t = TESTIMONIALS[(testimonialIndex + offset) % TESTIMONIALS.length];
-                const isPurple = t.variant === "purple";
-                return (
-                  <motion.figure
-                    key={`${t.id}-${offset}`}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`rounded-[28px] p-7 min-h-[380px] flex flex-col justify-between shadow-lg ${
-                      isPurple ? "bg-[#8504cf] text-white" : "bg-[#faa1ce] text-white"
-                    }`}
-                  >
-                    <Quote className="w-8 h-8 opacity-85" />
-                    <blockquote className="text-lg font-medium leading-relaxed my-6">
-                      "{t.quote}"
-                    </blockquote>
-                    <figcaption className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center font-bold text-base">
-                        {t.initial}
-                      </div>
-                      <span className="font-bold text-sm">{t.author}</span>
-                    </figcaption>
-                  </motion.figure>
-                );
-              })}
+            {/* Right Cards + Compact Video */}
+            <div className="lg:col-span-7 space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[0, 1].map((offset) => {
+                  const t = TESTIMONIALS[(testimonialIndex + offset) % TESTIMONIALS.length];
+                  const isPurple = t.variant === "purple";
+                  return (
+                    <motion.figure
+                      key={`${t.id}-${offset}`}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`rounded-[28px] p-7 min-h-[380px] flex flex-col justify-between shadow-lg ${
+                        isPurple ? "bg-[#8504cf] text-white" : "bg-[#faa1ce] text-white"
+                      }`}
+                    >
+                      <Quote className="w-8 h-8 opacity-85" />
+                      <blockquote className="text-lg font-medium leading-relaxed my-6">
+                        "{t.quote}"
+                      </blockquote>
+                      <figcaption className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center font-bold text-base">
+                          {t.initial}
+                        </div>
+                        <span className="font-bold text-sm">{t.author}</span>
+                      </figcaption>
+                    </motion.figure>
+                  );
+                })}
+              </div>
+
+              {/* Compact Testimonial Video below the two reviews */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="relative w-full max-w-[460px] mx-auto pt-2"
+              >
+                <BurstDoodle
+                  color="#FDDF59"
+                  className="w-8 h-8 absolute -top-4 -left-4 -rotate-12 pointer-events-none z-10"
+                />
+                <HeartDoodle
+                  color="#FAA1CE"
+                  className="w-6 h-6 absolute -top-1 -right-3 rotate-12 pointer-events-none z-10"
+                />
+                <AsteriskDoodle
+                  color="#1EC9A0"
+                  className="w-5 h-5 absolute -bottom-2.5 -left-2.5 pointer-events-none z-10"
+                />
+                <SpiralDoodle
+                  color="#8504CF"
+                  className="w-8 h-8 absolute -bottom-4 -right-4 pointer-events-none z-10"
+                />
+
+                <div className="rounded-[26px] overflow-hidden border-[3px] border-[#faa1ce] bg-[#1e1e1e] shadow-[0_14px_30px_rgba(133,4,207,0.16)]">
+                  <video
+                    src="/assets/video-keishop.mp4"
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="w-full aspect-video object-cover block"
+                  />
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -798,9 +843,11 @@ export default function App() {
         >
           {/* Wave Pattern from Figma */}
           <img
-            src="/assets/wave-faq.png"
+            src="/assets/wave-faq.webp"
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
             className="pointer-events-none select-none opacity-20 absolute bottom-0 left-0 w-full h-[360px] md:h-[460px] object-cover object-top z-[1]"
           />
 
@@ -833,7 +880,7 @@ export default function App() {
 
               <KeilaSticker
                 variant="faq"
-                src="/assets/keila-pensando-rosado.png"
+                src="/assets/keila-pensando-rosado.webp"
                 alt="Chica rizada pensando con dudas sobre el Método Curly"
                 wrapperClassName="max-w-[420px] pt-2 lg:-ml-10"
               />
@@ -965,8 +1012,10 @@ export default function App() {
           <div className="max-w-[1210px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <a href="#inicio" className="shrink-0">
               <img
-                src="/assets/logokeila.png"
+                src="/assets/logokeila.webp"
                 alt="Keishop Always Curly"
+                loading="lazy"
+                decoding="async"
                 className="h-10 md:h-11 w-auto object-contain"
               />
             </a>
