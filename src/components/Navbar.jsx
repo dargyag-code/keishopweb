@@ -21,15 +21,15 @@ export default function Navbar({
   ];
 
   return (
-    <header className="relative z-30 w-full bg-[#8504cf] pt-5 pb-3 px-4 md:px-10">
+    <header className="sticky top-0 lg:relative z-30 w-full bg-[#8504cf]/95 lg:bg-[#8504cf] backdrop-blur-md lg:backdrop-blur-none pt-3 pb-2.5 md:pt-5 md:pb-3 px-4 md:px-10 shadow-md lg:shadow-none">
       <nav className="max-w-[1344px] mx-auto flex items-center justify-between gap-4">
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden text-white p-2 rounded-xl bg-white/15 hover:bg-white/25 transition"
+          className="lg:hidden text-white p-2.5 rounded-2xl bg-white/15 active:scale-95 hover:bg-white/25 transition"
           aria-label="Abrir menú"
         >
-          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
         {/* Left links */}
@@ -163,15 +163,89 @@ export default function Navbar({
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Quick-Navigation Pill Strip (visible only on mobile/tablet < lg) */}
+      <div className="flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar pt-2.5 pb-0.5 -mx-4 px-4">
+        {[
+          {
+            label: "Inicio",
+            active: activePage === "inicio",
+            onClick: () => {
+              onNavigateHome("#inicio");
+              setMobileOpen(false);
+            },
+          },
+          {
+            label: "Catálogo (34)",
+            active: activePage === "productos",
+            onClick: () => {
+              onOpenProductsPage("all");
+              setMobileOpen(false);
+            },
+          },
+          {
+            label: "Cremas",
+            active: false,
+            onClick: () => {
+              onOpenProductsPage("cremas");
+              setMobileOpen(false);
+            },
+          },
+          {
+            label: "Accesorios",
+            active: false,
+            onClick: () => {
+              onOpenProductsPage("accesorios");
+              setMobileOpen(false);
+            },
+          },
+          {
+            label: "Óleos",
+            active: false,
+            onClick: () => {
+              onOpenProductsPage("oleos");
+              setMobileOpen(false);
+            },
+          },
+          {
+            label: "Asesoría",
+            active: false,
+            onClick: () => {
+              setMobileOpen(false);
+              onOpenAdvisor();
+            },
+          },
+          {
+            label: "Preguntas",
+            active: false,
+            onClick: () => {
+              onNavigateHome("#faq");
+              setMobileOpen(false);
+            },
+          },
+        ].map((pill) => (
+          <button
+            key={pill.label}
+            onClick={pill.onClick}
+            className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition ${
+              pill.active
+                ? "bg-[#fddf59] text-[#4b0078] shadow-sm"
+                : "bg-white/15 text-white active:bg-white/30"
+            }`}
+          >
+            {pill.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile Floating Drawer Menu */}
       {mobileOpen && (
-        <div className="lg:hidden mt-3 bg-white rounded-3xl p-4 shadow-xl space-y-2 text-[#474747]">
+        <div className="lg:hidden absolute left-4 right-4 top-full mt-2 z-50 bg-white rounded-3xl p-4 shadow-2xl border border-purple-100 space-y-1.5 text-[#474747]">
           <button
             onClick={() => {
               onNavigateHome("#inicio");
               setMobileOpen(false);
             }}
-            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold bg-purple-50 text-[#8504cf]"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl text-sm font-bold bg-purple-50 text-[#8504cf]"
           >
             Inicio
           </button>
@@ -180,7 +254,7 @@ export default function Navbar({
               onOpenProductsPage("all");
               setMobileOpen(false);
             }}
-            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl text-sm font-bold hover:bg-purple-50"
           >
             Catálogo Completo (34 Productos)
           </button>
@@ -189,7 +263,7 @@ export default function Navbar({
               onOpenProductsPage("cremas");
               setMobileOpen(false);
             }}
-            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl text-sm font-bold hover:bg-purple-50"
           >
             1. Cremas y Tratamientos
           </button>
@@ -198,7 +272,7 @@ export default function Navbar({
               onOpenProductsPage("accesorios");
               setMobileOpen(false);
             }}
-            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl text-sm font-bold hover:bg-purple-50"
           >
             2. Accesorios
           </button>
@@ -207,7 +281,7 @@ export default function Navbar({
               onOpenProductsPage("oleos");
               setMobileOpen(false);
             }}
-            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl text-sm font-bold hover:bg-purple-50"
           >
             3. Óleos
           </button>
@@ -216,7 +290,7 @@ export default function Navbar({
               setMobileOpen(false);
               onOpenAdvisor();
             }}
-            className="w-full text-left px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left px-4 py-2.5 rounded-2xl text-sm font-bold hover:bg-purple-50"
           >
             Asesoría Personalizada
           </button>
@@ -225,7 +299,7 @@ export default function Navbar({
               onNavigateHome("#faq");
               setMobileOpen(false);
             }}
-            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl text-sm font-bold hover:bg-purple-50"
           >
             Preguntas Frecuentes
           </button>
