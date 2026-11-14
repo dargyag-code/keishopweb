@@ -10,6 +10,7 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 export default function HeroWalkingCanvas({
   src = "/assets/keila-video1.webm",
   alt = "Keila caminando con productos capilares Keishop Always Curly",
+  chromaKey = "white",
   sectionRef,
   textBlockRef,
   className = "",
@@ -64,16 +65,26 @@ export default function HeroWalkingCanvas({
         const frame = ctx.getImageData(0, 0, targetW, targetH);
         const data = frame.data;
 
+        const isPurpleKey = chromaKey === "purple";
+
         for (let i = 0; i < data.length; i += 4) {
           const r = data[i];
           const g = data[i + 1];
           const b = data[i + 2];
-          const brightness = (r + g + b) / 3;
-          const rbDiff = Math.abs(r - b);
 
-          // Elimina blanco puro / casi blanco neutro, conservando crema (menor B) y trazos
-          if ((r > 246 && g > 246 && b > 246) || (rbDiff < 8 && brightness > 245)) {
-            data[i + 3] = 0;
+          if (isPurpleKey) {
+            // Elimina el fondo morado (#8504CF) conservando espuma lila, burbujas, silla y piel
+            if (r >= 100 && r <= 168 && g <= 42 && b >= 170 && b - g >= 145 && r - g >= 85) {
+              data[i + 3] = 0;
+            }
+          } else {
+            const brightness = (r + g + b) / 3;
+            const rbDiff = Math.abs(r - b);
+
+            // Elimina blanco puro / casi blanco neutro, conservando crema (menor B) y trazos
+            if ((r > 246 && g > 246 && b > 246) || (rbDiff < 8 && brightness > 245)) {
+              data[i + 3] = 0;
+            }
           }
         }
 
@@ -155,7 +166,7 @@ export default function HeroWalkingCanvas({
       video.removeEventListener("canplay", handleLoadedData);
       if (rafId !== null) window.cancelAnimationFrame(rafId);
     };
-  }, [src]);
+  }, [src, chromaKey]);
 
   // Calcula límites seguros respecto al bloque de texto y avanza translateX hacia la izquierda con el scroll
   useEffect(() => {

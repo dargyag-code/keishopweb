@@ -42,6 +42,8 @@ export default function App() {
   const searchInputRef = useRef(null);
   const catalogSectionRef = useRef(null);
   const catalogTextBlockRef = useRef(null);
+  const amorSectionRef = useRef(null);
+  const amorTextBlockRef = useRef(null);
 
   // Amor Propio & Testimonials carousel index
   const [quoteIndex, setQuoteIndex] = useState(0);
@@ -410,54 +412,43 @@ export default function App() {
               </div>
             </div>
 
-            {/* Keila illustration peeking on left + 2 Featured Stock Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-end pt-2">
-              <div className="hidden lg:flex lg:col-span-4 justify-start self-end -mb-20 -ml-16">
-                <KeilaSticker
-                  variant="stock"
-                  src="/assets/keila-espaldas-rosado.webp"
-                  alt="Chica rizada Keishop luciendo rizos definidos"
-                  wrapperClassName="max-w-[460px]"
-                />
-              </div>
-
-              <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-7">
-                {STOCK_PRODUCTS.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    whileHover={{ y: -6 }}
-                    className="bg-white rounded-[28px] p-6 shadow-md border border-purple-100 flex flex-col justify-between"
-                  >
-                    <div className="relative bg-[#faf5ff] rounded-2xl p-6 h-72 flex items-center justify-center overflow-hidden mb-5">
-                      <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1ec9a0]/15 text-[#0d9488] text-xs font-bold">
-                        ✨ {item.badge}
-                      </span>
-                      <div className="w-52 h-52">
-                        <ProductVisual type={item.visualType} />
-                      </div>
+            {/* 2 Featured Stock Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-7 max-w-[920px] mx-auto pt-2">
+              {STOCK_PRODUCTS.map((item) => (
+                <motion.div
+                  key={item.id}
+                  whileHover={{ y: -6 }}
+                  className="bg-white rounded-[28px] p-6 shadow-md border border-purple-100 flex flex-col justify-between"
+                >
+                  <div className="relative bg-[#faf5ff] rounded-2xl p-6 h-72 flex items-center justify-center overflow-hidden mb-5">
+                    <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1ec9a0]/15 text-[#0d9488] text-xs font-bold">
+                      ✨ {item.badge}
+                    </span>
+                    <div className="w-52 h-52">
+                      <ProductVisual type={item.visualType} />
                     </div>
+                  </div>
 
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-[#474747]">{item.name}</h3>
-                      <p className="text-xs font-bold uppercase tracking-wide text-[#8504cf]">
-                        {item.category}
-                      </p>
-                      <p className="text-xl font-extrabold text-[#474747] pt-1">{item.priceRange}</p>
-                      <div className="flex items-center gap-2 text-xs text-[#8504cf] font-semibold pt-1">
-                        <Truck className="w-4 h-4 shrink-0" />
-                        <span>{item.deliveryNote}</span>
-                      </div>
-                      <button
-                        onClick={() => addToCart(item)}
-                        className="mt-4 w-full py-3 rounded-full bg-[#8504cf] hover:bg-[#6a02a8] text-white font-bold text-sm transition flex items-center justify-center gap-2"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Agregar a mi bolsita
-                      </button>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-[#474747]">{item.name}</h3>
+                    <p className="text-xs font-bold uppercase tracking-wide text-[#8504cf]">
+                      {item.category}
+                    </p>
+                    <p className="text-xl font-extrabold text-[#474747] pt-1">{item.priceRange}</p>
+                    <div className="flex items-center gap-2 text-xs text-[#8504cf] font-semibold pt-1">
+                      <Truck className="w-4 h-4 shrink-0" />
+                      <span>{item.deliveryNote}</span>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
+                    <button
+                      onClick={() => addToCart(item)}
+                      className="mt-4 w-full py-3 rounded-full bg-[#8504cf] hover:bg-[#6a02a8] text-white font-bold text-sm transition flex items-center justify-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Agregar a mi bolsita
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
@@ -644,7 +635,11 @@ export default function App() {
         </section>
 
         {/* ==================== 4. AMOR PROPIO / CONÓCENOS ==================== */}
-        <section id="conocenos" className="relative bg-[#8504cf] text-white py-20 px-6 md:px-14 overflow-hidden">
+        <section
+          ref={amorSectionRef}
+          id="conocenos"
+          className="relative bg-[#8504cf] text-white py-20 px-6 md:px-14 overflow-hidden"
+        >
           {/* Decorative Bokeh Circles matching Figma */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
             <span className="absolute -left-8 top-0 w-[180px] h-[180px] rounded-full bg-white/15" />
@@ -663,7 +658,7 @@ export default function App() {
 
           <div className="relative z-10 max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             {/* Left Heading + Amor Propio Message */}
-            <div className="lg:col-span-6 space-y-8">
+            <div ref={amorTextBlockRef} className="lg:col-span-6 space-y-8">
               <h2 className="text-4xl sm:text-5xl md:text-[54px] font-bold leading-[1.1] tracking-tight">
                 Cuidar tu cabello <span className="text-[#fddf59]">rizado</span>
                 <br />
@@ -682,13 +677,15 @@ export default function App() {
               </motion.p>
             </div>
 
-            {/* Right Illustration + Navigation Controls */}
+            {/* Right Animated Video Canvas + Navigation Controls */}
             <div className="lg:col-span-6 flex flex-col items-center lg:items-end gap-4">
-              <KeilaSticker
-                variant="salon"
-                src="/assets/lava-cabeza-morado.webp"
-                alt="Chica rizada celebrando el amor propio y su melena natural"
-                wrapperClassName="max-w-[460px] lg:max-w-[540px]"
+              <HeroWalkingCanvas
+                src="/assets/amor-propio-video.mp4"
+                chromaKey="purple"
+                alt="Keila lavando el cabello rizado en el salón Keishop"
+                sectionRef={amorSectionRef}
+                textBlockRef={amorTextBlockRef}
+                className="max-w-[440px] lg:max-w-[540px]"
               />
               <div className="flex items-center gap-3 self-end">
                 <button
