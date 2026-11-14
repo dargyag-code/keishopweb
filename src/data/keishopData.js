@@ -649,7 +649,7 @@ export const TESTIMONIALS = [
     initial: "S",
     variant: "purple",
     quote:
-      "El cepillo Definición y Volumen y los óleos me cambiaron la vida. Mi melena ya no se enreda y amanezco con los rizos intactos. 100% recomendado ✨",
+      "El cepillo Definición y Volumen y los óleos me cambiaron la vida. Mi melena ya no se enreda y amanezco con los rizos intactos. 100% recomendado.",
   },
 ];
 

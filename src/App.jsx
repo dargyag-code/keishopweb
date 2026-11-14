@@ -22,7 +22,6 @@ import { AdvisorModal } from "./components/Modals";
 import { AsteriskDoodle, BurstDoodle, HeartDoodle, SpiralDoodle } from "./components/Doodles";
 import {
   ALL_PRODUCTS,
-  AMOR_PROPIO_QUOTES,
   CATALOG_PRODUCTS,
   FAQS,
   STOCK_PRODUCTS,
@@ -46,11 +45,8 @@ export default function App() {
   const searchInputRef = useRef(null);
   const catalogSectionRef = useRef(null);
   const catalogTextBlockRef = useRef(null);
-  const amorSectionRef = useRef(null);
-  const amorTextBlockRef = useRef(null);
 
-  // Amor Propio & Testimonials carousel index
-  const [quoteIndex, setQuoteIndex] = useState(0);
+  // Testimonials carousel index
   const [testimonialIndex, setTestimonialIndex] = useState(0);
 
   // FAQ accordion state (5th item expanded by default, matching Figma)
@@ -72,7 +68,7 @@ export default function App() {
       }
       return [...prev, { ...product, qty: 1 }];
     });
-    showToast(`¡${product.name} agregado a tu bolsita! 💜`);
+    showToast(`${product.name} agregado a tu bolsita`);
   };
 
   const updateCartQty = (id, delta) => {
@@ -90,9 +86,9 @@ export default function App() {
   const handleCheckout = () => {
     const summary = cart.map((i) => `• ${i.qty}x ${i.name} (${formatCOP(i.price)})`).join("%0A");
     const total = formatCOP(cart.reduce((acc, i) => acc + i.price * i.qty, 0));
-    showToast("Preparando tu pedido Always Curly ✨");
+    showToast("Preparando tu pedido Always Curly");
     window.open(
-      `https://wa.me/573202347818?text=¡Hola%20Keishop!%20💜%20Quiero%20confirmar%20mi%20pedido%20Always%20Curly:%0A${summary}%0A%0ATotal:%20${total}`,
+      `https://wa.me/573202347818?text=Hola%20Keishop,%20quiero%20confirmar%20mi%20pedido%20Always%20Curly:%0A${summary}%0A%0ATotal:%20${total}`,
       "_blank"
     );
   };
@@ -473,16 +469,17 @@ export default function App() {
                   whileHover={{ y: -6 }}
                   className="bg-white rounded-[28px] p-6 shadow-md border border-purple-100 flex flex-col justify-between"
                 >
-                  <div className="relative bg-[#faf5ff] rounded-2xl p-6 h-72 flex items-center justify-center overflow-hidden mb-5">
-                    <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1ec9a0]/15 text-[#0d9488] text-xs font-bold">
-                      ✨ {item.badge}
+                  <div className="relative bg-[#faf5ff] rounded-2xl p-2 h-72 flex items-center justify-center overflow-hidden mb-5">
+                    <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-[#1ec9a0]/15 text-[#0d9488] text-xs font-bold">
+                      {item.badge}
                     </span>
                     <img
                       src={item.image}
                       alt={item.name}
                       loading="lazy"
                       decoding="async"
-                      className="w-56 h-56 object-contain transition-transform duration-300 hover:scale-105"
+                      style={{ mixBlendMode: "multiply" }}
+                      className="h-[220px] w-auto object-contain mix-blend-multiply scale-125 transition-transform duration-300 hover:scale-[1.32]"
                     />
                   </div>
 
@@ -612,13 +609,14 @@ export default function App() {
                     </p>
                   </div>
 
-                  <div className="my-4 w-48 h-48 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center p-4 shadow-inner">
+                  <div className="my-4 w-48 h-48 rounded-full bg-[#faf5ff]/90 flex items-center justify-center p-2 shadow-inner overflow-hidden">
                     <img
                       src="/assets/products/crema-16.png"
                       alt="Favoritos Keishop"
                       loading="lazy"
                       decoding="async"
-                      className="w-36 h-36 object-contain drop-shadow-md"
+                      style={{ mixBlendMode: "multiply" }}
+                      className="h-[185px] w-auto object-contain mix-blend-multiply scale-110"
                     />
                   </div>
 
@@ -642,7 +640,7 @@ export default function App() {
                   className="bg-white rounded-[28px] p-6 border border-[#e9d5ff] shadow-sm hover:shadow-xl transition flex flex-col justify-between"
                 >
                   <div>
-                    <div className="bg-[#ffe7f8]/60 rounded-2xl h-64 flex items-center justify-center p-5 mb-5 relative overflow-hidden">
+                    <div className="bg-[#ffe7f8]/60 rounded-2xl h-64 flex items-center justify-center p-2 mb-5 relative overflow-hidden">
                       <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white text-[#8504cf] text-xs font-bold shadow-sm z-10">
                         {product.filterTag}
                       </span>
@@ -651,7 +649,8 @@ export default function App() {
                         alt={product.name}
                         loading="lazy"
                         decoding="async"
-                        className="w-48 h-48 object-contain transition-transform duration-300 hover:scale-105"
+                        style={{ mixBlendMode: "multiply" }}
+                        className="h-[220px] w-auto object-contain mix-blend-multiply scale-125 transition-transform duration-300 hover:scale-[1.32]"
                       />
                     </div>
 
@@ -722,77 +721,75 @@ export default function App() {
 
         {/* ==================== 4. AMOR PROPIO / CONÓCENOS ==================== */}
         <section
-          ref={amorSectionRef}
           id="conocenos"
-          className="relative bg-[#8504cf] text-white py-20 px-6 md:px-14 overflow-hidden"
+          className="relative bg-[#8504cf] text-white py-24 px-6 md:px-14 overflow-hidden"
         >
           {/* Decorative Bokeh Circles matching Figma */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
             <span className="absolute -left-8 top-0 w-[180px] h-[180px] rounded-full bg-white/15" />
             <span className="hidden md:block absolute left-[8%] top-[36%] w-20 h-20 rounded-full bg-white/10" />
-            <span className="hidden md:block absolute left-[22%] top-[32%] w-5 h-5 rounded-full bg-white/20" />
-            <span className="hidden md:block absolute left-[35%] top-[32%] w-[100px] h-[100px] rounded-full bg-white/10" />
-            <span className="hidden md:block absolute left-[50%] top-[28%] w-5 h-5 rounded-full bg-white/20" />
-            <span className="hidden md:block absolute left-[54%] top-[52%] w-12 h-12 rounded-full bg-white/15" />
-            <span className="hidden lg:block absolute right-[12%] top-[6%] w-[83px] h-[83px] rounded-full bg-white/10" />
+            <span className="hidden md:block absolute left-[22%] top-[22%] w-5 h-5 rounded-full bg-white/20" />
+            <span className="hidden md:block absolute right-[24%] top-[20%] w-[90px] h-[90px] rounded-full bg-white/10" />
+            <span className="hidden md:block absolute right-[16%] bottom-[18%] w-12 h-12 rounded-full bg-white/15" />
+            <span className="hidden lg:block absolute right-[10%] top-[8%] w-[83px] h-[83px] rounded-full bg-white/10" />
             <span className="hidden lg:block absolute -right-10 top-[35%] w-[208px] h-[208px] rounded-full bg-white/15" />
             <span className="hidden md:block absolute -left-6 bottom-[6%] w-[190px] h-[190px] rounded-full bg-white/15" />
-            <span className="hidden md:block absolute left-[16%] bottom-[10%] w-7 h-7 rounded-full bg-white/20" />
-            <span className="hidden md:block absolute left-[30%] bottom-[12%] w-[132px] h-[132px] rounded-full bg-white/10" />
-            <span className="hidden md:block absolute left-[50%] bottom-[12%] w-5 h-5 rounded-full bg-white/20" />
+            <span className="hidden md:block absolute left-[16%] bottom-[12%] w-7 h-7 rounded-full bg-white/20" />
           </div>
 
-          <div className="relative z-10 max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Left Heading + Amor Propio Message */}
-            <div ref={amorTextBlockRef} className="lg:col-span-6 space-y-8">
-              <h2 className="text-4xl sm:text-5xl md:text-[54px] font-bold leading-[1.1] tracking-tight">
+          <div className="relative z-10 max-w-[820px] mx-auto text-center space-y-8">
+            <div className="relative inline-block">
+              <BurstDoodle
+                color="#FFD166"
+                className="hidden sm:block w-10 h-10 absolute -top-7 -left-10 -rotate-12"
+              />
+              <SpiralDoodle
+                color="#FF85B3"
+                className="hidden sm:block w-11 h-11 absolute -top-6 -right-12 rotate-12"
+              />
+              <h2 className="text-4xl sm:text-5xl md:text-[60px] lg:text-[66px] font-bold leading-[1.08] tracking-tight">
                 Cuidar tu cabello <span className="text-[#fddf59]">rizado</span>
                 <br />
                 es una forma de demostrar
                 <br />
                 amor <span className="text-[#1ec9a0]">propio</span>
               </h2>
-
-              <motion.p
-                key={quoteIndex}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-xl sm:text-2xl md:text-[30px] text-white/90 font-medium leading-[1.6]"
-              >
-                {AMOR_PROPIO_QUOTES[quoteIndex]}
-              </motion.p>
             </div>
 
-            {/* Right Animated Video Canvas + Navigation Controls */}
-            <div className="lg:col-span-6 flex flex-col items-center lg:items-end gap-4">
-              <HeroWalkingCanvas
-                src="/assets/amor-propio-video.mp4"
-                chromaKey="purple"
-                alt="Keila lavando el cabello rizado en el salón Keishop"
-                sectionRef={amorSectionRef}
-                textBlockRef={amorTextBlockRef}
-                className="max-w-[440px] lg:max-w-[540px]"
-              />
-              <div className="flex items-center gap-3 self-end">
-                <button
-                  onClick={() =>
-                    setQuoteIndex(
-                      (prev) => (prev - 1 + AMOR_PROPIO_QUOTES.length) % AMOR_PROPIO_QUOTES.length
-                    )
-                  }
-                  className="w-14 h-14 rounded-full bg-[#ffe7f8] text-[#8504cf] hover:scale-105 transition flex items-center justify-center shadow-lg"
-                  aria-label="Anterior"
+            <p className="text-lg sm:text-xl md:text-[26px] text-white/95 font-medium leading-[1.6] max-w-[760px] mx-auto">
+              Tus rizos cuentan una historia única. Aprender a cuidarlos, entender sus necesidades y
+              darles lo que merecen es también una manera de abrazar quién eres.
+            </p>
+
+            {/* Clean Typographic Sticker-Style Brand Pills */}
+            <div className="pt-3 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
+              {[
+                {
+                  label: "Hidratación Real",
+                  bg: "bg-[#FF85B3] text-white border-white/40 -rotate-2",
+                },
+                {
+                  label: "Cero Reglas",
+                  bg: "bg-[#FFD166] text-[#4b0078] border-white/50 rotate-1",
+                },
+                {
+                  label: "Definición sin Frizz",
+                  bg: "bg-[#2EC4B6] text-white border-white/40 -rotate-1",
+                },
+                {
+                  label: "100% Amor Propio",
+                  bg: "bg-white text-[#8504cf] border-[#FFD166] rotate-2",
+                },
+              ].map((pill) => (
+                <motion.span
+                  key={pill.label}
+                  whileHover={{ y: -4, scale: 1.04, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className={`inline-flex items-center justify-center px-6 py-3 rounded-full font-extrabold text-sm sm:text-base tracking-wide border-2 shadow-[0_10px_24px_rgba(0,0,0,0.18)] select-none ${pill.bg}`}
                 >
-                  <ArrowLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={() => setQuoteIndex((prev) => (prev + 1) % AMOR_PROPIO_QUOTES.length)}
-                  className="w-14 h-14 rounded-full bg-black text-white hover:scale-105 transition flex items-center justify-center shadow-lg"
-                  aria-label="Siguiente"
-                >
-                  <ArrowRight className="w-6 h-6" />
-                </button>
-              </div>
+                  {pill.label}
+                </motion.span>
+              ))}
             </div>
           </div>
         </section>

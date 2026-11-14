@@ -43,8 +43,8 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQty, onRemo
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {items.length === 0 ? (
                 <div className="text-center py-16 space-y-3">
-                  <div className="w-20 h-20 rounded-full bg-[#f6c8df]/40 mx-auto flex items-center justify-center text-3xl">
-                    💜
+                  <div className="w-20 h-20 rounded-full bg-[#f6c8df]/40 mx-auto flex items-center justify-center text-[#8504cf]">
+                    <ShoppingBag className="w-8 h-8" />
                   </div>
                   <p className="text-lg font-bold text-[#474747]">Tu bolsita está vacía</p>
                   <p className="text-sm text-[#79716b] max-w-xs mx-auto">
@@ -57,11 +57,12 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQty, onRemo
                     key={item.id}
                     className="flex gap-4 p-3 rounded-2xl border border-purple-100 bg-[#faf5ff]/60 items-center"
                   >
-                    <div className="w-16 h-16 rounded-xl bg-white p-1.5 shrink-0 border border-purple-100 flex items-center justify-center overflow-hidden">
+                    <div className="w-16 h-16 rounded-xl bg-[#ffe7f8]/60 p-1 shrink-0 border border-purple-100 flex items-center justify-center overflow-hidden">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-contain"
+                        style={{ mixBlendMode: "multiply" }}
+                        className="w-full h-full object-contain mix-blend-multiply scale-110"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -107,7 +108,7 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQty, onRemo
                   onClick={onCheckout}
                   className="w-full py-3.5 rounded-full bg-[#8504cf] hover:bg-[#6a02a8] text-white font-bold shadow-lg shadow-purple-500/25 transition flex items-center justify-center gap-2"
                 >
-                  Confirmar pedido por WhatsApp ✨
+                  Confirmar pedido por WhatsApp
                 </button>
               </div>
             )}

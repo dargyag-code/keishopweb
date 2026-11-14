@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, X } from "lucide-react";
+import { X } from "lucide-react";
 
 export function StoryModal({ member, onClose }) {
   return (
@@ -86,13 +86,12 @@ export function AdvisorModal({ isOpen, onClose, onRecommend }) {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f6c8df]/50 text-[#8504cf] text-xs font-bold mb-3">
-              <Sparkles className="w-4 h-4" />
+            <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#f6c8df]/50 text-[#8504cf] text-xs font-bold mb-3">
               Asesoría Always Curly
             </div>
 
             <h3 className="text-2xl md:text-3xl font-bold text-[#474747] mb-2">
-              Encuentra tu rutina ideal 💜
+              Encuentra tu rutina ideal
             </h3>
             <p className="text-sm text-[#79716b] mb-6">
               Cuéntanos cómo es tu melena y te mostramos los productos Keishop perfectos para ti.
@@ -152,7 +151,7 @@ export function AdvisorModal({ isOpen, onClose, onRecommend }) {
                 }}
                 className="w-full py-3.5 rounded-full bg-[#8504cf] hover:bg-[#6a02a8] text-white font-bold shadow-lg shadow-purple-500/25 transition"
               >
-                Ver productos recomendados ✨
+                Ver productos recomendados
               </button>
             </div>
           </motion.div>

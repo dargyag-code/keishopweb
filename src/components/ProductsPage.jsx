@@ -6,11 +6,10 @@ import {
   Heart,
   Plus,
   Search,
-  Sparkles,
   Truck,
   X,
 } from "lucide-react";
-import { AsteriskDoodle, BurstDoodle, HeartDoodle, SpiralDoodle } from "./Doodles";
+import { AsteriskDoodle, BurstDoodle, SpiralDoodle } from "./Doodles";
 import { ALL_PRODUCTS, PRODUCT_SECTIONS } from "../data/keishopData";
 
 export default function ProductsPage({
@@ -111,8 +110,7 @@ export default function ProductsPage({
                 color="#FAA1CE"
                 className="w-10 h-10 absolute -top-5 -right-10 rotate-12 hidden sm:block"
               />
-              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/15 text-[#fddf59] text-xs sm:text-sm font-bold tracking-wide uppercase">
-                <Sparkles className="w-4 h-4" />
+              <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/15 text-[#fddf59] text-xs sm:text-sm font-bold tracking-wide uppercase">
                 Catálogo Oficial Keishop Always Curly
               </span>
             </div>
@@ -292,8 +290,8 @@ export default function ProductsPage({
                         className="bg-white rounded-[26px] p-5 border border-[#e9d5ff] shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
                       >
                         <div>
-                          {/* Product Image Container (345px tall aspect in Figma) */}
-                          <div className="relative bg-gradient-to-b from-[#faf5ff] to-[#ffe7f8]/45 rounded-2xl h-[270px] flex items-center justify-center p-4 mb-4 overflow-hidden">
+                          {/* Product Image Container (padding: 8px, no white background, mix-blend-multiply) */}
+                          <div className="relative bg-gradient-to-b from-[#faf5ff] to-[#ffe7f8]/60 rounded-2xl h-[270px] flex items-center justify-center p-2 mb-4 overflow-hidden">
                             <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-white/95 text-[#8504cf] text-[11px] font-extrabold shadow-sm">
                               {product.badge}
                             </span>
@@ -318,7 +316,8 @@ export default function ProductsPage({
                               alt={product.name}
                               loading="lazy"
                               decoding="async"
-                              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 select-none"
+                              style={{ mixBlendMode: "multiply" }}
+                              className="h-[220px] w-auto object-contain mix-blend-multiply scale-125 transition-transform duration-500 group-hover:scale-[1.32] select-none"
                             />
                           </div>
 
@@ -363,8 +362,7 @@ export default function ProductsPage({
         <section className="relative bg-[#8504cf] text-white rounded-[36px] p-8 md:p-12 overflow-hidden shadow-xl">
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 text-[#fddf59] font-bold text-sm">
-                <HeartDoodle color="#FAA1CE" className="w-5 h-5" />
+              <div className="inline-flex items-center text-[#fddf59] font-bold text-sm">
                 <span>¿No sabes cuál elegir para tu tipo de rizo?</span>
               </div>
               <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold">
@@ -380,7 +378,7 @@ export default function ProductsPage({
                 onClick={onOpenAdvisor}
                 className="px-7 py-4 rounded-full bg-[#fddf59] hover:bg-white text-[#4b0078] font-bold text-sm sm:text-base transition shadow-lg"
               >
-                Recibir asesoría gratis ✨
+                Recibir asesoría gratis
               </button>
               <button
                 onClick={onBackHome}
