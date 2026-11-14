@@ -18,7 +18,7 @@ import ProductsPage from "./components/ProductsPage";
 import CartDrawer from "./components/CartDrawer";
 import KeilaSticker from "./components/KeilaSticker";
 import HeroWalkingCanvas from "./components/HeroWalkingCanvas";
-import { AdvisorModal } from "./components/Modals";
+import { AdvisorModal, LegalModal } from "./components/Modals";
 import { AsteriskDoodle, BurstDoodle, HeartDoodle, SpiralDoodle } from "./components/Doodles";
 import {
   ALL_PRODUCTS,
@@ -37,6 +37,7 @@ export default function App() {
   ]);
   const [cartOpen, setCartOpen] = useState(false);
   const [advisorOpen, setAdvisorOpen] = useState(false);
+  const [legalTab, setLegalTab] = useState(null);
   const [toast, setToast] = useState("");
 
   // Catalog search & filtering
@@ -737,59 +738,34 @@ export default function App() {
             <span className="hidden md:block absolute left-[16%] bottom-[12%] w-7 h-7 rounded-full bg-white/20" />
           </div>
 
-          <div className="relative z-10 max-w-[820px] mx-auto text-center space-y-8">
-            <div className="relative inline-block">
-              <BurstDoodle
-                color="#FFD166"
-                className="hidden sm:block w-10 h-10 absolute -top-7 -left-10 -rotate-12"
-              />
-              <SpiralDoodle
-                color="#FF85B3"
-                className="hidden sm:block w-11 h-11 absolute -top-6 -right-12 rotate-12"
-              />
-              <h2 className="text-4xl sm:text-5xl md:text-[60px] lg:text-[66px] font-bold leading-[1.08] tracking-tight">
+          <div className="relative z-10 max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* Left Column: Title & Paragraph aligned left */}
+            <div className="lg:col-span-6 text-left space-y-6">
+              <h2 className="text-4xl sm:text-5xl md:text-[54px] font-bold leading-[1.1] tracking-tight">
                 Cuidar tu cabello <span className="text-[#fddf59]">rizado</span>
                 <br />
                 es una forma de demostrar
                 <br />
                 amor <span className="text-[#1ec9a0]">propio</span>
               </h2>
+
+              <p className="text-lg sm:text-xl md:text-2xl text-white/95 font-medium leading-[1.6] max-w-[560px]">
+                Tus rizos cuentan una historia única. Aprender a cuidarlos, entender sus necesidades
+                y darles lo que merecen es también una manera de abrazar quién eres.
+              </p>
             </div>
 
-            <p className="text-lg sm:text-xl md:text-[26px] text-white/95 font-medium leading-[1.6] max-w-[760px] mx-auto">
-              Tus rizos cuentan una historia única. Aprender a cuidarlos, entender sus necesidades y
-              darles lo que merecen es también una manera de abrazar quién eres.
-            </p>
-
-            {/* Clean Typographic Sticker-Style Brand Pills */}
-            <div className="pt-3 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
-              {[
-                {
-                  label: "Hidratación Real",
-                  bg: "bg-[#FF85B3] text-white border-white/40 -rotate-2",
-                },
-                {
-                  label: "Cero Reglas",
-                  bg: "bg-[#FFD166] text-[#4b0078] border-white/50 rotate-1",
-                },
-                {
-                  label: "Definición sin Frizz",
-                  bg: "bg-[#2EC4B6] text-white border-white/40 -rotate-1",
-                },
-                {
-                  label: "100% Amor Propio",
-                  bg: "bg-white text-[#8504cf] border-[#FFD166] rotate-2",
-                },
-              ].map((pill) => (
-                <motion.span
-                  key={pill.label}
-                  whileHover={{ y: -4, scale: 1.04, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className={`inline-flex items-center justify-center px-6 py-3 rounded-full font-extrabold text-sm sm:text-base tracking-wide border-2 shadow-[0_10px_24px_rgba(0,0,0,0.18)] select-none ${pill.bg}`}
-                >
-                  {pill.label}
-                </motion.span>
-              ))}
+            {/* Right Column: Video Player centered vertically */}
+            <div className="lg:col-span-6 flex justify-center lg:justify-end items-center">
+              <div className="w-full max-w-[540px] rounded-[24px] overflow-hidden border border-white/25 bg-[#1e1e1e] shadow-[0_20px_45px_rgba(0,0,0,0.28)]">
+                <video
+                  src="/assets/video-keishop.mp4"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full aspect-video object-cover block"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -847,8 +823,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* Right Cards + Compact Video */}
-            <div className="lg:col-span-7 space-y-8">
+            {/* Right Review Cards aligned and centered vertically */}
+            <div className="lg:col-span-7">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {[0, 1].map((offset) => {
                   const t = TESTIMONIALS[(testimonialIndex + offset) % TESTIMONIALS.length];
@@ -876,42 +852,6 @@ export default function App() {
                   );
                 })}
               </div>
-
-              {/* Compact Testimonial Video below the two reviews */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="relative w-full max-w-[460px] mx-auto pt-2"
-              >
-                <BurstDoodle
-                  color="#FDDF59"
-                  className="w-8 h-8 absolute -top-4 -left-4 -rotate-12 pointer-events-none z-10"
-                />
-                <HeartDoodle
-                  color="#FAA1CE"
-                  className="w-6 h-6 absolute -top-1 -right-3 rotate-12 pointer-events-none z-10"
-                />
-                <AsteriskDoodle
-                  color="#1EC9A0"
-                  className="w-5 h-5 absolute -bottom-2.5 -left-2.5 pointer-events-none z-10"
-                />
-                <SpiralDoodle
-                  color="#8504CF"
-                  className="w-8 h-8 absolute -bottom-4 -right-4 pointer-events-none z-10"
-                />
-
-                <div className="rounded-[26px] overflow-hidden border-[3px] border-[#faa1ce] bg-[#1e1e1e] shadow-[0_14px_30px_rgba(133,4,207,0.16)]">
-                  <video
-                    src="/assets/video-keishop.mp4"
-                    controls
-                    playsInline
-                    preload="metadata"
-                    className="w-full aspect-video object-cover block"
-                  />
-                </div>
-              </motion.div>
             </div>
           </div>
         </section>
@@ -1178,17 +1118,26 @@ export default function App() {
         <div className="bg-[#1e1e1e] text-white/85 text-xs md:text-sm py-4 px-4 text-center flex flex-wrap items-center justify-center gap-2">
           <span>© 2026 Keishop Always Curly</span>
           <span>|</span>
-          <a href="#faq" className="underline decoration-dotted hover:text-white">
-            Términos y Condiciones
-          </a>
+          <button
+            onClick={() => setLegalTab("privacidad")}
+            className="underline decoration-dotted hover:text-white transition"
+          >
+            Política de privacidad
+          </button>
           <span>|</span>
-          <a href="#faq" className="underline decoration-dotted hover:text-white">
-            Política de Privacidad
-          </a>
+          <button
+            onClick={() => setLegalTab("terminos")}
+            className="underline decoration-dotted hover:text-white transition"
+          >
+            Términos del Servicio
+          </button>
           <span>|</span>
-          <a href="#faq" className="underline decoration-dotted hover:text-white">
-            Envíos y Cambios
-          </a>
+          <button
+            onClick={() => setLegalTab("devoluciones")}
+            className="underline decoration-dotted hover:text-white transition"
+          >
+            Política de devoluciones y reembolsos
+          </button>
         </div>
       </footer>
 
@@ -1206,6 +1155,12 @@ export default function App() {
         isOpen={advisorOpen}
         onClose={() => setAdvisorOpen(false)}
         onRecommend={handleSelectCategory}
+      />
+
+      <LegalModal
+        activeTab={legalTab}
+        onSelectTab={setLegalTab}
+        onClose={() => setLegalTab(null)}
       />
 
       {/* Toast Notification */}
