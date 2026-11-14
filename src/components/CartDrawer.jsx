@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
-import ProductVisual from "./ProductVisual";
+import { formatCOP } from "../data/keishopData";
 
 export default function CartDrawer({ isOpen, onClose, items, onUpdateQty, onRemove, onCheckout }) {
   const total = items.reduce((acc, item) => acc + item.price * item.qty, 0);
@@ -48,7 +48,7 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQty, onRemo
                   </div>
                   <p className="text-lg font-bold text-[#474747]">Tu bolsita está vacía</p>
                   <p className="text-sm text-[#79716b] max-w-xs mx-auto">
-                    Agrega tus cremas, geles o accesorios favoritos para consentir tus rizos.
+                    Agrega tus cremas, óleos o accesorios favoritos para consentir tus rizos.
                   </p>
                 </div>
               ) : (
@@ -57,13 +57,17 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQty, onRemo
                     key={item.id}
                     className="flex gap-4 p-3 rounded-2xl border border-purple-100 bg-[#faf5ff]/60 items-center"
                   >
-                    <div className="w-16 h-16 rounded-xl bg-white p-1 shrink-0 border border-purple-100">
-                      <ProductVisual type={item.visualType} />
+                    <div className="w-16 h-16 rounded-xl bg-white p-1.5 shrink-0 border border-purple-100 flex items-center justify-center overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-sm text-[#474747] truncate">{item.name}</h4>
                       <p className="text-xs text-[#8504cf] font-semibold">
-                        S/{item.price.toFixed(2)}
+                        {formatCOP(item.price)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
@@ -97,7 +101,7 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQty, onRemo
               <div className="p-6 border-t border-purple-100 bg-purple-50/40 space-y-4">
                 <div className="flex items-center justify-between text-base font-bold text-[#474747]">
                   <span>Total estimado</span>
-                  <span className="text-xl text-[#8504cf]">S/{total.toFixed(2)}</span>
+                  <span className="text-xl text-[#8504cf]">{formatCOP(total)}</span>
                 </div>
                 <button
                   onClick={onCheckout}

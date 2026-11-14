@@ -1,11 +1,24 @@
 import { useState } from "react";
 import { ChevronDown, Menu, Search, ShoppingBag, User, X } from "lucide-react";
 
-export default function Navbar({ cartCount, onOpenCart, onOpenSearch, onOpenAdvisor, onSelectCategory }) {
+export default function Navbar({
+  cartCount,
+  activePage = "inicio",
+  onNavigateHome,
+  onOpenProductsPage,
+  onOpenCart,
+  onOpenSearch,
+  onOpenAdvisor,
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const categories = ["Todos", "Reconstrucción", "Hidratación", "Nutrición", "Accesorios"];
+  const productSections = [
+    { id: "all", label: "Ver Todo el Catálogo (34)" },
+    { id: "cremas", label: "1. Cremas y Tratamientos" },
+    { id: "accesorios", label: "2. Accesorios" },
+    { id: "oleos", label: "3. Óleos" },
+  ];
 
   return (
     <header className="relative z-30 w-full bg-[#8504cf] pt-5 pb-3 px-4 md:px-10">
@@ -21,60 +34,75 @@ export default function Navbar({ cartCount, onOpenCart, onOpenSearch, onOpenAdvi
 
         {/* Left links */}
         <div className="hidden lg:flex items-center gap-2">
-          <a
-            href="#inicio"
-            className="bg-white/15 text-white px-4 py-2 rounded-[18px] text-[17px] font-bold hover:bg-white/25 transition"
+          <button
+            onClick={() => onNavigateHome("#inicio")}
+            className={`px-4 py-2 rounded-[18px] text-[17px] font-bold transition ${
+              activePage === "inicio"
+                ? "bg-white/20 text-white"
+                : "text-white hover:bg-white/15"
+            }`}
           >
             Inicio
-          </a>
+          </button>
 
           <div
             className="relative"
             onMouseEnter={() => setDropdownOpen(true)}
             onMouseLeave={() => setDropdownOpen(false)}
           >
-            <a
-              href="#catalogo"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-1.5 text-white px-4 py-2 rounded-[18px] text-[17px] font-bold hover:bg-white/15 transition"
+            <button
+              onClick={() => {
+                onOpenProductsPage("all");
+                setDropdownOpen(false);
+              }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-[18px] text-[17px] font-bold transition ${
+                activePage === "productos"
+                  ? "bg-white/20 text-white"
+                  : "text-white hover:bg-white/15"
+              }`}
             >
               Productos
               <ChevronDown className="w-4 h-4" />
-            </a>
+            </button>
 
             {dropdownOpen && (
-              <div className="absolute left-0 top-full pt-2 w-48 z-40">
+              <div className="absolute left-0 top-full pt-2 w-60 z-40">
                 <div className="bg-white rounded-2xl shadow-xl border border-purple-100 py-2 overflow-hidden">
-                  {categories.map((cat) => (
-                    <a
-                      key={cat}
-                      href="#catalogo"
+                  {productSections.map((sec) => (
+                    <button
+                      key={sec.id}
                       onClick={() => {
-                        onSelectCategory(cat);
+                        onOpenProductsPage(sec.id);
                         setDropdownOpen(false);
                       }}
-                      className="block px-4 py-2 text-sm font-semibold text-[#474747] hover:bg-purple-50 hover:text-[#8504cf] transition"
+                      className="w-full text-left block px-4 py-2.5 text-sm font-bold text-[#474747] hover:bg-purple-50 hover:text-[#8504cf] transition"
                     >
-                      {cat}
-                    </a>
+                      {sec.label}
+                    </button>
                   ))}
                 </div>
               </div>
             )}
           </div>
 
-          <a
-            href="#catalogo"
-            onClick={() => onSelectCategory("Accesorios")}
+          <button
+            onClick={() => onOpenProductsPage("accesorios")}
             className="text-white px-4 py-2 rounded-[18px] text-[17px] font-bold hover:bg-white/15 transition"
           >
             Accesorios
-          </a>
+          </button>
+
+          <button
+            onClick={() => onOpenProductsPage("oleos")}
+            className="text-white px-4 py-2 rounded-[18px] text-[17px] font-bold hover:bg-white/15 transition"
+          >
+            Óleos
+          </button>
         </div>
 
         {/* Center Brand Logo */}
-        <a
-          href="#inicio"
+        <button
+          onClick={() => onNavigateHome("#inicio")}
           className="flex items-center justify-center shrink-0 group"
           aria-label="Keishop Always Curly - Ir al inicio"
         >
@@ -85,7 +113,7 @@ export default function Navbar({ cartCount, onOpenCart, onOpenSearch, onOpenAdvi
             fetchPriority="high"
             className="h-10 md:h-[52px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
           />
-        </a>
+        </button>
 
         {/* Right links & icons */}
         <div className="flex items-center gap-1 md:gap-2">
@@ -96,12 +124,12 @@ export default function Navbar({ cartCount, onOpenCart, onOpenSearch, onOpenAdvi
             >
               Asesoría
             </button>
-            <a
-              href="#faq"
+            <button
+              onClick={() => onNavigateHome("#faq")}
               className="text-white px-4 py-2 rounded-[18px] text-[17px] font-bold hover:bg-white/15 transition"
             >
               Tips Curly
-            </a>
+            </button>
           </div>
 
           <button
@@ -138,40 +166,51 @@ export default function Navbar({ cartCount, onOpenCart, onOpenSearch, onOpenAdvi
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="lg:hidden mt-3 bg-white rounded-3xl p-4 shadow-xl space-y-2 text-[#474747]">
-          <a
-            href="#inicio"
-            onClick={() => setMobileOpen(false)}
-            className="block px-4 py-2.5 rounded-2xl font-bold bg-purple-50 text-[#8504cf]"
+          <button
+            onClick={() => {
+              onNavigateHome("#inicio");
+              setMobileOpen(false);
+            }}
+            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold bg-purple-50 text-[#8504cf]"
           >
             Inicio
-          </a>
-          <a
-            href="#stock"
-            onClick={() => setMobileOpen(false)}
-            className="block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
-          >
-            Productos en Stock
-          </a>
-          <a
-            href="#catalogo"
+          </button>
+          <button
             onClick={() => {
-              onSelectCategory("Todos");
+              onOpenProductsPage("all");
               setMobileOpen(false);
             }}
-            className="block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
           >
-            Catálogo Curly
-          </a>
-          <a
-            href="#catalogo"
+            Catálogo Completo (34 Productos)
+          </button>
+          <button
             onClick={() => {
-              onSelectCategory("Accesorios");
+              onOpenProductsPage("cremas");
               setMobileOpen(false);
             }}
-            className="block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
           >
-            Accesorios
-          </a>
+            1. Cremas y Tratamientos
+          </button>
+          <button
+            onClick={() => {
+              onOpenProductsPage("accesorios");
+              setMobileOpen(false);
+            }}
+            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+          >
+            2. Accesorios
+          </button>
+          <button
+            onClick={() => {
+              onOpenProductsPage("oleos");
+              setMobileOpen(false);
+            }}
+            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+          >
+            3. Óleos
+          </button>
           <button
             onClick={() => {
               setMobileOpen(false);
@@ -181,13 +220,15 @@ export default function Navbar({ cartCount, onOpenCart, onOpenSearch, onOpenAdvi
           >
             Asesoría Personalizada
           </button>
-          <a
-            href="#faq"
-            onClick={() => setMobileOpen(false)}
-            className="block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
+          <button
+            onClick={() => {
+              onNavigateHome("#faq");
+              setMobileOpen(false);
+            }}
+            className="w-full text-left block px-4 py-2.5 rounded-2xl font-bold hover:bg-purple-50"
           >
             Preguntas Frecuentes
-          </a>
+          </button>
         </div>
       )}
     </header>

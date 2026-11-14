@@ -14,21 +14,25 @@ import {
 } from "lucide-react";
 import ScrollRibbon from "./components/ScrollRibbon";
 import Navbar from "./components/Navbar";
-import ProductVisual from "./components/ProductVisual";
+import ProductsPage from "./components/ProductsPage";
 import CartDrawer from "./components/CartDrawer";
 import KeilaSticker from "./components/KeilaSticker";
 import HeroWalkingCanvas from "./components/HeroWalkingCanvas";
 import { AdvisorModal } from "./components/Modals";
 import { AsteriskDoodle, BurstDoodle, HeartDoodle, SpiralDoodle } from "./components/Doodles";
 import {
+  ALL_PRODUCTS,
   AMOR_PROPIO_QUOTES,
   CATALOG_PRODUCTS,
   FAQS,
   STOCK_PRODUCTS,
   TESTIMONIALS,
+  formatCOP,
 } from "./data/keishopData";
 
 export default function App() {
+  const [activePage, setActivePage] = useState("inicio");
+  const [productsInitialSection, setProductsInitialSection] = useState("all");
   const [cart, setCart] = useState([
     { ...STOCK_PRODUCTS[0], qty: 1 },
   ]);
@@ -38,7 +42,7 @@ export default function App() {
 
   // Catalog search & filtering
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("Todos");
+  const [activeCategory, setActiveCategory] = useState("Destacados");
   const searchInputRef = useRef(null);
   const catalogSectionRef = useRef(null);
   const catalogTextBlockRef = useRef(null);
@@ -84,37 +88,75 @@ export default function App() {
   };
 
   const handleCheckout = () => {
-    const summary = cart.map((i) => `• ${i.qty}x ${i.name} (S/${i.price})`).join("%0A");
-    const total = cart.reduce((acc, i) => acc + i.price * i.qty, 0).toFixed(2);
+    const summary = cart.map((i) => `• ${i.qty}x ${i.name} (${formatCOP(i.price)})`).join("%0A");
+    const total = formatCOP(cart.reduce((acc, i) => acc + i.price * i.qty, 0));
     showToast("Preparando tu pedido Always Curly ✨");
     window.open(
-      `https://wa.me/573202347818?text=¡Hola%20Keishop!%20💜%20Quiero%20confirmar%20mi%20pedido%20Always%20Curly:%0A${summary}%0A%0ATotal:%20S/${total}`,
+      `https://wa.me/573202347818?text=¡Hola%20Keishop!%20💜%20Quiero%20confirmar%20mi%20pedido%20Always%20Curly:%0A${summary}%0A%0ATotal:%20${total}`,
       "_blank"
     );
   };
 
+  const handleNavigateHome = (targetSelector = "#inicio") => {
+    setActivePage("inicio");
+    setTimeout(() => {
+      if (targetSelector === "#inicio") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        const el = document.querySelector(targetSelector);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 60);
+  };
+
+  const handleOpenProductsPage = (sectionId = "all") => {
+    setProductsInitialSection(sectionId);
+    setActivePage("productos");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const focusSearch = () => {
+    if (activePage === "productos") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const el = document.getElementById("catalogo");
     if (el) el.scrollIntoView({ behavior: "smooth" });
     setTimeout(() => searchInputRef.current?.focus(), 450);
   };
 
   const handleSelectCategory = (category) => {
+    const sectionMap = {
+      "Cremas y Tratamientos": "cremas",
+      Accesorios: "accesorios",
+      "Óleos": "oleos",
+    };
+    if (activePage === "productos") {
+      setProductsInitialSection(sectionMap[category] || "all");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     setActiveCategory(category);
     const el = document.getElementById("catalogo");
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  const filteredCatalog = CATALOG_PRODUCTS.filter((p) => {
+  const q = searchQuery.trim().toLowerCase();
+  const baseCatalogSource =
+    activeCategory === "Destacados" && !q ? CATALOG_PRODUCTS : ALL_PRODUCTS;
+
+  const filteredCatalog = baseCatalogSource.filter((p) => {
     const matchesCat =
+      activeCategory === "Destacados" ||
       activeCategory === "Todos" ||
+      p.section === activeCategory ||
       p.filterTag === activeCategory ||
       (p.filterCategories && p.filterCategories.includes(activeCategory));
-    const q = searchQuery.trim().toLowerCase();
     const matchesSearch =
       !q ||
       p.name.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
+      p.section.toLowerCase().includes(q) ||
       p.filterTag.toLowerCase().includes(q);
     return matchesCat && matchesSearch;
   });
@@ -127,13 +169,24 @@ export default function App() {
       {/* Navbar */}
       <Navbar
         cartCount={totalCartItems}
+        activePage={activePage}
+        onNavigateHome={handleNavigateHome}
+        onOpenProductsPage={handleOpenProductsPage}
         onOpenCart={() => setCartOpen(true)}
         onOpenSearch={focusSearch}
         onOpenAdvisor={() => setAdvisorOpen(true)}
-        onSelectCategory={handleSelectCategory}
       />
 
-      {/* Main content wrapped with continuous ScrollRibbon */}
+      {activePage === "productos" ? (
+        <ProductsPage
+          key={productsInitialSection}
+          initialSection={productsInitialSection}
+          onAddToCart={addToCart}
+          onBackHome={() => handleNavigateHome("#inicio")}
+          onOpenAdvisor={() => setAdvisorOpen(true)}
+        />
+      ) : (
+      /* Main content wrapped with continuous ScrollRibbon */
       <main className="relative w-full overflow-hidden">
         {/* Listón morado animado sincronizado con el scroll */}
         <ScrollRibbon />
@@ -203,12 +256,12 @@ export default function App() {
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <a
-                  href="#catalogo"
+                <button
+                  onClick={() => handleOpenProductsPage("all")}
                   className="bg-[#fafcff] text-[#8504cf] hover:bg-[#fddf59] hover:text-[#4b0078] transition-all duration-300 px-8 py-4 rounded-full font-bold text-base inline-flex items-center justify-center shadow-xl shadow-black/15 hover:scale-105"
                 >
                   Ver productos
-                </a>
+                </button>
                 <button
                   onClick={() => setAdvisorOpen(true)}
                   className="px-7 py-4 rounded-full border-2 border-white/40 hover:border-white text-white font-bold text-base transition hover:bg-white/10"
@@ -385,12 +438,12 @@ export default function App() {
                 <h2 className="text-4xl sm:text-5xl md:text-[62px] font-bold text-white tracking-tight leading-none">
                   Productos en
                 </h2>
-                <a
-                  href="#catalogo"
+                <button
+                  onClick={() => handleOpenProductsPage("all")}
                   className="bg-[#8504cf] text-white px-6 py-2 rounded-[26px] text-4xl sm:text-5xl md:text-[58px] font-bold tracking-tight shadow-[0_8px_10px_rgba(86,106,78,0.2)] hover:scale-105 transition inline-block"
                 >
                   STOCK
-                </a>
+                </button>
                 <BurstDoodle color="#8504CF" className="w-9 h-9 rotate-90 hidden sm:block" />
               </div>
 
@@ -400,15 +453,15 @@ export default function App() {
                   después del mediodía, lo recibes al día siguiente.
                 </p>
 
-                <a
-                  href="#catalogo"
+                <button
+                  onClick={() => handleOpenProductsPage("all")}
                   className="bg-[#8504cf] hover:bg-[#6a02a8] text-white rounded-full pl-6 pr-2 py-2 inline-flex items-center gap-4 shadow-[0_8px_14px_rgba(240,62,131,0.3)] transition self-start md:self-auto shrink-0 font-bold"
                 >
                   <span>Ver stock disponible</span>
                   <span className="w-10 h-10 rounded-full bg-white text-[#8504cf] flex items-center justify-center">
                     <ArrowUpRight className="w-5 h-5" />
                   </span>
-                </a>
+                </button>
               </div>
             </div>
 
@@ -424,9 +477,13 @@ export default function App() {
                     <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1ec9a0]/15 text-[#0d9488] text-xs font-bold">
                       ✨ {item.badge}
                     </span>
-                    <div className="w-52 h-52">
-                      <ProductVisual type={item.visualType} />
-                    </div>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-56 h-56 object-contain transition-transform duration-300 hover:scale-105"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -518,7 +575,13 @@ export default function App() {
 
               {/* Filter Chips */}
               <div className="flex flex-wrap items-center justify-center gap-2">
-                {["Todos", "Reconstrucción", "Hidratación", "Nutrición", "Accesorios"].map((cat) => (
+                {[
+                  "Destacados",
+                  "Todos",
+                  "Cremas y Tratamientos",
+                  "Accesorios",
+                  "Óleos",
+                ].map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
@@ -536,7 +599,7 @@ export default function App() {
 
             {/* Product Grid with Mint "Más vendidos" Feature Card */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-              {activeCategory === "Todos" && !searchQuery && (
+              {activeCategory === "Destacados" && !searchQuery && (
                 <div className="bg-[#1ec9a0] rounded-[28px] p-8 flex flex-col items-center justify-between text-center text-white relative overflow-hidden min-h-[440px] shadow-md">
                   <BurstDoodle
                     color="#FDDF59"
@@ -549,15 +612,21 @@ export default function App() {
                     </p>
                   </div>
 
-                  <div className="my-4 w-48 h-48 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center p-4">
-                    <ProductVisual type="kit" />
+                  <div className="my-4 w-48 h-48 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center p-4 shadow-inner">
+                    <img
+                      src="/assets/products/crema-16.png"
+                      alt="Favoritos Keishop"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-36 h-36 object-contain drop-shadow-md"
+                    />
                   </div>
 
                   <button
-                    onClick={() => setActiveCategory("Nutrición")}
+                    onClick={() => handleOpenProductsPage("all")}
                     className="bg-[#8504cf] hover:bg-[#6a02a8] text-white rounded-full pl-6 pr-2 py-2 inline-flex items-center gap-3 font-bold shadow-lg transition hover:scale-105"
                   >
-                    <span>Ver Favoritos</span>
+                    <span>Ver Catálogo Completo</span>
                     <span className="w-9 h-9 rounded-full bg-white text-[#8504cf] flex items-center justify-center">
                       <ArrowUpRight className="w-4 h-4" />
                     </span>
@@ -573,13 +642,17 @@ export default function App() {
                   className="bg-white rounded-[28px] p-6 border border-[#e9d5ff] shadow-sm hover:shadow-xl transition flex flex-col justify-between"
                 >
                   <div>
-                    <div className="bg-[#ffe7f8]/60 rounded-2xl h-64 flex items-center justify-center p-5 mb-5 relative">
-                      <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white text-[#8504cf] text-xs font-bold shadow-sm">
+                    <div className="bg-[#ffe7f8]/60 rounded-2xl h-64 flex items-center justify-center p-5 mb-5 relative overflow-hidden">
+                      <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white text-[#8504cf] text-xs font-bold shadow-sm z-10">
                         {product.filterTag}
                       </span>
-                      <div className="w-48 h-48">
-                        <ProductVisual type={product.visualType} />
-                      </div>
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-48 h-48 object-contain transition-transform duration-300 hover:scale-105"
+                      />
                     </div>
 
                     <h3 className="text-lg font-bold text-[#474747] leading-snug">
@@ -623,14 +696,27 @@ export default function App() {
                 <button
                   onClick={() => {
                     setSearchQuery("");
-                    setActiveCategory("Todos");
+                    setActiveCategory("Destacados");
                   }}
                   className="mt-3 px-5 py-2 rounded-full bg-[#8504cf] text-white text-sm font-bold"
                 >
-                  Ver todo el catálogo
+                  Ver productos destacados
                 </button>
               </div>
             )}
+
+            {/* CTA to Open Full Products Page */}
+            <div className="pt-4 flex justify-center">
+              <button
+                onClick={() => handleOpenProductsPage("all")}
+                className="bg-[#8504cf] hover:bg-[#6a02a8] text-white rounded-full pl-8 pr-3 py-3 inline-flex items-center gap-4 font-extrabold text-base md:text-lg shadow-[0_12px_24px_rgba(133,4,207,0.3)] hover:scale-105 transition"
+              >
+                <span>Ver Página Completa de Productos (34 productos)</span>
+                <span className="w-11 h-11 rounded-full bg-[#fddf59] text-[#4b0078] flex items-center justify-center shadow">
+                  <ArrowUpRight className="w-5 h-5" />
+                </span>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -865,15 +951,15 @@ export default function App() {
                 y envíos.
               </p>
 
-              <a
-                href="#catalogo"
+              <button
+                onClick={() => handleOpenProductsPage("all")}
                 className="bg-[#8504cf] hover:bg-[#6a02a8] text-white rounded-full pl-6 pr-2 py-2 inline-flex items-center gap-3 font-bold shadow-[0_8px_14px_rgba(240,62,131,0.3)] transition"
               >
                 <span>Ver Productos</span>
                 <span className="w-9 h-9 rounded-full bg-white text-[#8504cf] flex items-center justify-center">
                   <ArrowUpRight className="w-4 h-4" />
                 </span>
-              </a>
+              </button>
 
               <KeilaSticker
                 variant="faq"
@@ -989,25 +1075,29 @@ export default function App() {
                 Cada producto está elegido con criterio, dedicación y mucho cariño. Queremos llenar
                 tus días de rizos definidos, confianza y momentos inolvidables.
               </p>
-              <a
-                href="#catalogo"
+              <button
+                onClick={() => handleOpenProductsPage("all")}
                 className="bg-[#8504cf] hover:bg-[#6a02a8] text-white rounded-full pl-6 pr-2 py-2 inline-flex items-center gap-3 font-bold shadow-[0_8px_14px_rgba(240,62,131,0.3)] transition"
               >
                 <span>Ver Productos</span>
                 <span className="w-9 h-9 rounded-full bg-white text-[#8504cf] flex items-center justify-center">
                   <ArrowUpRight className="w-4 h-4" />
                 </span>
-              </a>
+              </button>
             </div>
           </div>
         </section>
       </main>
+      )}
 
       {/* ==================== 8. FOOTER ==================== */}
       <footer className="relative z-20">
         <div className="bg-[#8505cf] text-white py-8 px-6 md:px-14">
           <div className="max-w-[1210px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-            <a href="#inicio" className="shrink-0">
+            <button
+              onClick={() => handleNavigateHome("#inicio")}
+              className="shrink-0"
+            >
               <img
                 src="/assets/logokeila.webp"
                 alt="Keishop Always Curly"
@@ -1015,31 +1105,42 @@ export default function App() {
                 decoding="async"
                 className="h-10 md:h-11 w-auto object-contain"
               />
-            </a>
+            </button>
 
             <nav className="flex flex-wrap items-center justify-center gap-6 md:gap-9 text-base font-bold">
-              <a href="#inicio" className="hover:text-[#fddf59] transition">
+              <button
+                onClick={() => handleNavigateHome("#inicio")}
+                className="hover:text-[#fddf59] transition"
+              >
                 Inicio
-              </a>
-              <a href="#catalogo" className="hover:text-[#fddf59] transition">
+              </button>
+              <button
+                onClick={() => handleOpenProductsPage("all")}
+                className="hover:text-[#fddf59] transition"
+              >
                 Productos
-              </a>
-              <a
-                href="#catalogo"
-                onClick={() => handleSelectCategory("Accesorios")}
+              </button>
+              <button
+                onClick={() => handleOpenProductsPage("accesorios")}
                 className="hover:text-[#fddf59] transition"
               >
                 Accesorios
-              </a>
+              </button>
               <button onClick={() => setAdvisorOpen(true)} className="hover:text-[#fddf59] transition">
                 Asesoría
               </button>
-              <a href="#conocenos" className="hover:text-[#fddf59] transition">
+              <button
+                onClick={() => handleNavigateHome("#conocenos")}
+                className="hover:text-[#fddf59] transition"
+              >
                 Conócenos
-              </a>
-              <a href="#faq" className="hover:text-[#fddf59] transition">
+              </button>
+              <button
+                onClick={() => handleNavigateHome("#faq")}
+                className="hover:text-[#fddf59] transition"
+              >
                 FAQ
-              </a>
+              </button>
             </nav>
 
             <div className="flex items-center gap-3">

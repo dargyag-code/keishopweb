@@ -57,9 +57,8 @@ export function AdvisorModal({ isOpen, onClose, onRecommend }) {
 
   const getRecommendation = () => {
     if (goal === "Cuidado nocturno") return "Accesorios";
-    if (goal === "Hidratación profunda") return "Hidratación";
-    if (goal === "Brillo y suavidad") return "Nutrición";
-    return "Reconstrucción";
+    if (goal === "Brillo y suavidad") return "Óleos";
+    return "Cremas y Tratamientos";
   };
 
   return (
